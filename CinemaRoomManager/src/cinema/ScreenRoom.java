@@ -1,31 +1,32 @@
 package cinema;
 
-import java.util.Arrays;
-
 public class ScreenRoom {
+    private final int HIGH_PRICE;
+    private final int LOW_PRICE;
     private final int ROWS;
     private final int SEATS_PER_ROW;
     private final int NUMBER_OF_SEATS;
-    private Seat[][] seats;
-    private int highPrice;
-    private int lowPrice;
+    private final Seat[][] seats;
+    private int currentIncome;
+    private int purchasedTickets;
 
-
-    public ScreenRoom(int rows, int seatsPerRow, int highPrice, int lowPrice) {
+    public ScreenRoom(int rows, int seatsPerRow) {
+        this.HIGH_PRICE = 10;
+        this.LOW_PRICE = 8;
         this.ROWS = rows;
         this.SEATS_PER_ROW = seatsPerRow;
         this.NUMBER_OF_SEATS = rows * seatsPerRow;
-        this.highPrice = highPrice;
-        this.lowPrice = lowPrice;
-        this.seats = emptySeats();
+        this.seats = fillSeats();
+        this.currentIncome = 0;
+        this.purchasedTickets = 0;
     }
 
-    private Seat[][] emptySeats() {
+    private Seat[][] fillSeats() {
         Seat[][] seats = new Seat[this.ROWS][this.SEATS_PER_ROW];
 
         for (int row = 0; row < this.ROWS; row++) {
             for (int seatInRow = 0; seatInRow < this.SEATS_PER_ROW; seatInRow++) {
-                seats[row][seatInRow] = new Seat(row, seatInRow, getTicketPrice(row));
+                seats[row][seatInRow] = new Seat(getTicketPrice(row));
             }
         }
 
@@ -36,21 +37,21 @@ public class ScreenRoom {
         StringBuilder seatingChart = new StringBuilder();
         seatingChart.append("Cinema:\n");
 
-        for (int row = 0; row <= this.ROWS; row++){
-            for (int seatInRow = 0; seatInRow <= this.SEATS_PER_ROW; seatInRow++) {
-                if (row == 0 && seatInRow == 0) {
+        for (int row = -1; row < this.ROWS; row++){
+            for (int seatInRow = -1; seatInRow < this.SEATS_PER_ROW; seatInRow++) {
+                if (row == -1 && seatInRow == -1) {
                     seatingChart.append(" ");
-                } else if (row == 0) {
-                    seatingChart.append(String.format(" %d", seatInRow));
-                } else if (seatInRow == 0){
-                    seatingChart.append(row);
+                } else if (row == -1) {
+                    seatingChart.append(String.format(" %d", seatInRow + 1));
+                } else if (seatInRow == -1){
+                    seatingChart.append(row + 1);
                 } else {
-                    Seat seat = this.seats[row - 1][seatInRow - 1];
+                    Seat seat = this.seats[row][seatInRow];
                     seatingChart.append(String.format(" %s", !seat.isReserved() ? "S" : "B"));
                 }
             }
 
-            if (row != this.ROWS) {
+            if (row != this.ROWS - 1) {
                 seatingChart.append("\n");
             }
         }
@@ -59,32 +60,51 @@ public class ScreenRoom {
     }
 
     private int getTicketPrice(int row) {
-        return NUMBER_OF_SEATS <= 60 || row <= this.ROWS / 2 - 1 ? this.highPrice
-                : this.lowPrice;
+        return NUMBER_OF_SEATS <= 60 || row + this.ROWS % 2 <= this.ROWS / 2 ? this.HIGH_PRICE
+                : this.LOW_PRICE;
     }
 
-    public int getTotalIncome() {
-        int totalIncome;
+    public int getTicketPrice(int row, int seatInRow) {
+        return this.seats[row - 1][seatInRow - 1].getTicketPrice();
+    }
 
-        if (NUMBER_OF_SEATS <= 60) {
-            totalIncome = this.NUMBER_OF_SEATS * this.highPrice;
-        }else {
-            totalIncome = this.ROWS / 2 * this.highPrice * this.SEATS_PER_ROW
-                    + (this.ROWS / 2 + this.ROWS % 2) * this.lowPrice * this.SEATS_PER_ROW;
+    private int totalIncome() {
+        return NUMBER_OF_SEATS <= 60 ? this.NUMBER_OF_SEATS * this.HIGH_PRICE
+                : this.ROWS / 2 * this.HIGH_PRICE * this.SEATS_PER_ROW
+                + (this.ROWS / 2 + this.ROWS % 2) * this.LOW_PRICE * this.SEATS_PER_ROW;
+    }
+
+    private double percentageSold() {
+        return (double) purchasedTickets / this.NUMBER_OF_SEATS * 100;
+    }
+
+    public String getStatistics() {
+        return String.format("Number of purchased tickets: %d%n" +
+                        "Percentage: %.2f%%%n" +
+                        "Current income: $%d%n" +
+                        "Total income: $%d",
+                this.purchasedTickets, this.percentageSold(), this.currentIncome, this.totalIncome());
+    }
+
+    public boolean reserveSeat(int row, int seatInRow) {
+        Seat seat = this.seats[row-1][seatInRow - 1];
+
+        if (seat.isReserved()) {
+            return true;
         }
 
-        return totalIncome;
+        seat.reserveSeat();
+        purchasedTickets++;
+        currentIncome += seat.getTicketPrice();
+
+        return false;
     }
 
-    public void setHighPrice(int highPrice) {
-        this.highPrice = highPrice;
+    public int getRows() {
+        return this.ROWS;
     }
 
-    public void setLowPrice(int lowPrice) {
-        this.lowPrice = lowPrice;
-    }
-
-    public Seat getSeat(int row, int seatInRow) {
-        return this.seats[row - 1][seatInRow - 1];
+    public int getSeatsPerRow() {
+        return this.SEATS_PER_ROW;
     }
 }

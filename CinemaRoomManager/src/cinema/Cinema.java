@@ -14,18 +14,16 @@ public class Cinema {
 
         do {
             selection = getInput(menu());
-            System.out.println();
 
             switch (selection) {
                 case 1:
-                    System.out.printf("%s", room.seatingChart());
-                    System.out.println();
-                    System.out.println();
+                    System.out.printf("%n%s%n%n", room.seatingChart());
                     break;
                 case 2:
-                    Seat seat = getSeat(room);
-                    System.out.printf("%nTicket price: $%d%n", seat.getTicketPrice());
-                    seat.reserveSeat();
+                    System.out.printf("%nTicket price: $%d%n%n", buyTicket(room));
+                    break;
+                case 3:
+                    System.out.printf("%n%s%n%n", room.getStatistics());
                     break;
             }
         } while (selection != 0);
@@ -34,6 +32,7 @@ public class Cinema {
     private static String menu() {
         return "1. Show the seats\n" +
                 "2. Buy a ticket\n" +
+                "3. Statistics\n" +
                 "0. Exit";
     }
 
@@ -46,13 +45,34 @@ public class Cinema {
         int rows = getInput("Enter the number of rows:");
         int seatsPerRow = getInput("Enter the number of seats in each row:");
 
-        return new ScreenRoom(rows, seatsPerRow, 10, 8);
+        return new ScreenRoom(rows, seatsPerRow);
     }
 
-    private static Seat getSeat(ScreenRoom room) {
-        int row = getInput("Enter a row number:");
-        int seatInRow = getInput("Enter a seat number in that row:");
+    private static int buyTicket(ScreenRoom room) {
+        int row;
+        int seatInRow;
+        boolean wrongInput;
+        boolean isReserved = false;
 
-        return room.getSeat(row, seatInRow);
+        System.out.println();
+
+        do {
+            row = getInput("Enter a row number:");
+            seatInRow = getInput("Enter a seat number in that row:");
+
+            wrongInput = row < 1 || row > room.getRows() || seatInRow < 1 || seatInRow > room.getSeatsPerRow();
+
+            if (wrongInput) {
+                System.out.println("\nWrong input!\n");
+            }else {
+                isReserved = room.reserveSeat(row, seatInRow);
+
+                if (isReserved) {
+                    System.out.println("\nThat ticket has already been purchased!\n");
+                }
+            }
+        } while (wrongInput || isReserved);
+
+        return room.getTicketPrice(row, seatInRow);
     }
 }
