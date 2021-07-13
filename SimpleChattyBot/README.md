@@ -11,7 +11,7 @@ The program should stop on the correct answer and print Congratulations, have a 
 The greater-than symbol followed by a space (> ) represents the user input. Note that it's not part of the input.
 
 Example 1: a dialogue with the final version of your bot
-
+``````
 Hello! My name is Aid.
 I was created in 2020.
 Please, remind me your name.
@@ -39,3 +39,4 @@ Why do we use methods?
 Please, try again.
 > 2
 Congratulations, have a nice day!
+```
