@@ -31,6 +31,7 @@ public class ScreenRoom {
 
         return seats;
     }
+
     public String seatingChart() {
         StringBuilder seatingChart = new StringBuilder();
         seatingChart.append("Cinema:\n");

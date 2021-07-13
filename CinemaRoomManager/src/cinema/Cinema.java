@@ -8,18 +8,37 @@ public class Cinema {
 
     public static void main(String[] args) {
         ScreenRoom room = getScreenRoom();
-        System.out.printf("%n%s%n%n", room.seatingChart());
+        System.out.println();
 
-        Seat seat = getSeat(room);
-        System.out.printf("%nTicket price: $%d%n%n", seat.getTicketPrice());
-        seat.reserveSeat();
+        int selection;
 
-        System.out.println(room.seatingChart());
+        do {
+            selection = getInput(menu());
+            System.out.println();
 
+            switch (selection) {
+                case 1:
+                    System.out.printf("%s", room.seatingChart());
+                    System.out.println();
+                    System.out.println();
+                    break;
+                case 2:
+                    Seat seat = getSeat(room);
+                    System.out.printf("%nTicket price: $%d%n", seat.getTicketPrice());
+                    seat.reserveSeat();
+                    break;
+            }
+        } while (selection != 0);
+    }
+
+    private static String menu() {
+        return "1. Show the seats\n" +
+                "2. Buy a ticket\n" +
+                "0. Exit";
     }
 
     private static int getInput(String message) {
-        System.out.println(message);
+        System.out.printf("%s%n", message);
         return scanner.nextInt();
     }
 
